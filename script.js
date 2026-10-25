@@ -1,105 +1,106 @@
 'use strict';
 
 /* ==========================================================
-   Tata Surya Interaktif — script.js
+   Interactive Solar System — script.js
    ========================================================== */
 
 const TAU = Math.PI * 2;
-const EARTH_PERIOD = 12; // detik nyata untuk 1 tahun Bumi pada kecepatan 1×
+const EARTH_PERIOD = 12; // real seconds per Earth year at 1× speed
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LOCALE = 'en-US';
 
-/* ---------- Data benda langit ----------
-   radius & size = satuan dunia (px pada zoom 1), sengaja tidak berskala asli
-   agar semua planet tetap terlihat. years = periode orbit asli (tahun Bumi). */
+/* ---------- Celestial body data ----------
+   radius & size = world units (px at zoom 1), intentionally not to scale
+   so every planet stays visible. years = real orbital period (Earth years). */
 const BODIES = [
     {
-        id: 'sun', name: 'Matahari', type: 'Bintang · Katai kuning G2V', img: 'sunn.png',
+        id: 'sun', name: 'Sun', type: 'Star · G2V yellow dwarf', img: 'sunn.png',
         color: '#ffb347', size: 90, radius: 0, years: 0, focus: 1.8, earthRatio: 109,
-        tagline: 'Pusat tata surya dan sumber energi bagi seluruh kehidupan di Bumi.',
+        tagline: 'The heart of the solar system and the energy source for all life on Earth.',
         stats: [
-            ['ri-ruler-2-line', 'Diameter', '1,39 juta km'],
-            ['ri-temp-hot-line', 'Suhu permukaan', '±5.500 °C'],
-            ['ri-fire-line', 'Suhu inti', '±15 juta °C'],
-            ['ri-restart-line', 'Rotasi', '±27 hari'],
-            ['ri-scales-3-line', 'Massa', '333.000× Bumi'],
-            ['ri-hourglass-line', 'Usia', '4,6 miliar tahun'],
+            ['ri-ruler-2-line', 'Diameter', '1.39 million km'],
+            ['ri-temp-hot-line', 'Surface temp', '~5,500 °C'],
+            ['ri-fire-line', 'Core temp', '~15 million °C'],
+            ['ri-restart-line', 'Rotation', '~27 days'],
+            ['ri-scales-3-line', 'Mass', '333,000× Earth'],
+            ['ri-hourglass-line', 'Age', '4.6 billion years'],
         ],
-        fact: 'Matahari menyimpan sekitar 99,86% dari seluruh massa tata surya.',
+        fact: 'The Sun holds about 99.86% of all the mass in the solar system.',
     },
     {
-        id: 'mercury', name: 'Merkurius', type: 'Planet kebumian', img: '2-mer.png',
+        id: 'mercury', name: 'Mercury', type: 'Terrestrial planet', img: '2-mer.png',
         color: '#c9b8a6', size: 16, radius: 72, years: 0.24, focus: 5, earthRatio: 0.38,
-        tagline: 'Planet terkecil dan paling dekat dengan Matahari.',
-        stats: planetStats('4.879 km', '57,9 juta km', '88 hari', '58,6 hari', '0', '−173 s.d. 427 °C'),
-        fact: 'Meski paling dekat dengan Matahari, Merkurius bukan planet terpanas — gelar itu milik Venus.',
+        tagline: 'The smallest planet and the closest one to the Sun.',
+        stats: planetStats('4,879 km', '57.9 million km', '88 days', '58.6 days', '0', '−173 to 427 °C'),
+        fact: 'Despite being closest to the Sun, Mercury is not the hottest planet — that title belongs to Venus.',
     },
     {
-        id: 'venus', name: 'Venus', type: 'Planet kebumian', img: '3-ven.png',
+        id: 'venus', name: 'Venus', type: 'Terrestrial planet', img: '3-ven.png',
         color: '#eab86b', size: 24, radius: 102, years: 0.615, focus: 4.2, earthRatio: 0.95,
-        tagline: 'Planet terpanas, terselimuti awan asam sulfat yang sangat tebal.',
-        stats: planetStats('12.104 km', '108,2 juta km', '225 hari', '243 hari (terbalik)', '0', '464 °C'),
-        fact: 'Satu hari di Venus (243 hari Bumi) lebih lama daripada satu tahunnya (225 hari).',
+        tagline: 'The hottest planet, wrapped in thick clouds of sulfuric acid.',
+        stats: planetStats('12,104 km', '108.2 million km', '225 days', '243 days (retrograde)', '0', '464 °C'),
+        fact: 'A day on Venus (243 Earth days) is longer than its year (225 days).',
     },
     {
-        id: 'earth', name: 'Bumi', type: 'Planet kebumian', img: '4-bum.png',
+        id: 'earth', name: 'Earth', type: 'Terrestrial planet', img: '4-bum.png',
         color: '#4fa3ff', size: 26, radius: 140, years: 1, focus: 4, earthRatio: 1,
-        tagline: 'Rumah kita — satu-satunya dunia yang diketahui memiliki kehidupan.',
-        stats: planetStats('12.742 km', '149,6 juta km', '365,25 hari', '23 j 56 m', '1', '15 °C'),
-        fact: 'Bumi adalah satu-satunya planet yang diketahui memiliki air cair di permukaannya.',
+        tagline: 'Our home — the only world known to support life.',
+        stats: planetStats('12,742 km', '149.6 million km', '365.25 days', '23 h 56 m', '1', '15 °C'),
+        fact: 'Earth is the only planet known to have liquid water on its surface.',
     },
     {
-        id: 'mars', name: 'Mars', type: 'Planet kebumian', img: '5-mars.png',
+        id: 'mars', name: 'Mars', type: 'Terrestrial planet', img: '5-mars.png',
         color: '#ff6b4a', size: 20, radius: 182, years: 1.88, focus: 4.4, earthRatio: 0.53,
-        tagline: 'Planet merah berdebu, target utama misi penjelajahan manusia.',
-        stats: planetStats('6.779 km', '227,9 juta km', '687 hari', '24 j 37 m', '2', '−63 °C'),
-        fact: 'Mars adalah rumah Olympus Mons, gunung berapi tertinggi di tata surya (±22 km).',
+        tagline: 'The dusty red planet and the main target for human exploration.',
+        stats: planetStats('6,779 km', '227.9 million km', '687 days', '24 h 37 m', '2', '−63 °C'),
+        fact: 'Mars is home to Olympus Mons, the tallest volcano in the solar system (~22 km).',
     },
     {
-        id: 'jupiter', name: 'Jupiter', type: 'Raksasa gas', img: '6-jup.png',
+        id: 'jupiter', name: 'Jupiter', type: 'Gas giant', img: '6-jup.png',
         color: '#e0a872', size: 56, radius: 265, years: 11.86, focus: 2.6, earthRatio: 10.97,
-        tagline: 'Raksasa gas terbesar, lebih masif dari gabungan semua planet lain.',
-        stats: planetStats('139.820 km', '778,5 juta km', '11,9 tahun', '9 j 56 m', '95', '−110 °C'),
-        fact: 'Bintik Merah Besar di Jupiter adalah badai raksasa yang lebih lebar dari Bumi.',
+        tagline: 'The largest gas giant, more massive than all other planets combined.',
+        stats: planetStats('139,820 km', '778.5 million km', '11.9 years', '9 h 56 m', '95', '−110 °C'),
+        fact: 'Jupiter’s Great Red Spot is a giant storm that is wider than Earth.',
     },
     {
-        id: 'saturn', name: 'Saturnus', type: 'Raksasa gas', img: '7-sat.png',
+        id: 'saturn', name: 'Saturn', type: 'Gas giant', img: '7-sat.png',
         color: '#f1d27a', size: 70, radius: 340, years: 29.46, focus: 2.4, earthRatio: 9.14,
-        tagline: 'Permata tata surya dengan sistem cincin yang menakjubkan.',
-        stats: planetStats('116.460 km', '1,43 miliar km', '29,5 tahun', '10 j 34 m', '274', '−140 °C'),
-        fact: 'Kerapatan Saturnus lebih rendah dari air — secara teori ia bisa mengapung.',
+        tagline: 'The jewel of the solar system, with a stunning ring system.',
+        stats: planetStats('116,460 km', '1.43 billion km', '29.5 years', '10 h 34 m', '274', '−140 °C'),
+        fact: 'Saturn is less dense than water — in theory, it could float.',
     },
     {
-        id: 'uranus', name: 'Uranus', type: 'Raksasa es', img: '8-ura.png',
+        id: 'uranus', name: 'Uranus', type: 'Ice giant', img: '8-ura.png',
         color: '#7fe0e6', size: 38, radius: 405, years: 84, focus: 3, earthRatio: 3.98,
-        tagline: 'Raksasa es yang berotasi miring, seolah berguling di orbitnya.',
-        stats: planetStats('50.724 km', '2,87 miliar km', '84 tahun', '17 j 14 m (terbalik)', '29', '−195 °C'),
-        fact: 'Sumbu rotasi Uranus miring sekitar 98°, jadi kutubnya bergantian menghadap Matahari.',
+        tagline: 'A tilted ice giant that seems to roll along its orbit.',
+        stats: planetStats('50,724 km', '2.87 billion km', '84 years', '17 h 14 m (retrograde)', '29', '−195 °C'),
+        fact: 'Uranus is tilted about 98°, so each pole takes turns facing the Sun.',
     },
     {
-        id: 'neptune', name: 'Neptunus', type: 'Raksasa es', img: '9-nep.png',
+        id: 'neptune', name: 'Neptune', type: 'Ice giant', img: '9-nep.png',
         color: '#5b7cff', size: 36, radius: 465, years: 164.8, focus: 3, earthRatio: 3.86,
-        tagline: 'Planet terjauh, biru pekat dan diterpa angin super kencang.',
-        stats: planetStats('49.244 km', '4,50 miliar km', '164,8 tahun', '16 j 6 m', '16', '−200 °C'),
-        fact: 'Neptunus punya angin tercepat di tata surya, bisa mencapai ±2.100 km/jam.',
+        tagline: 'The farthest planet, deep blue and battered by supersonic winds.',
+        stats: planetStats('49,244 km', '4.50 billion km', '164.8 years', '16 h 6 m', '16', '−200 °C'),
+        fact: 'Neptune has the fastest winds in the solar system, reaching ~2,100 km/h.',
     },
 ];
 
 function planetStats(diameter, distance, orbit, rotation, moons, temp) {
     return [
         ['ri-ruler-2-line', 'Diameter', diameter],
-        ['ri-route-line', 'Jarak dari Matahari', distance],
-        ['ri-repeat-2-line', 'Periode orbit', orbit],
-        ['ri-restart-line', 'Rotasi', rotation],
-        ['ri-moon-line', 'Satelit alami', moons],
-        ['ri-temp-cold-line', 'Suhu', temp],
+        ['ri-route-line', 'Distance from Sun', distance],
+        ['ri-repeat-2-line', 'Orbital period', orbit],
+        ['ri-restart-line', 'Rotation', rotation],
+        ['ri-moon-line', 'Moons', moons],
+        ['ri-temp-cold-line', 'Temperature', temp],
     ];
 }
 
 const BELT = { inner: 205, outer: 232, years: 4.6 };
 const MOON = { radius: 22, size: 8, period: 2.4 };
-const COMPARE_MAX = 11.2; // skala bar perbandingan ukuran (Jupiter ≈ 11× Bumi)
+const COMPARE_MAX = 11.2; // size comparison bar scale (Jupiter ≈ 11× Earth)
 
-/* ---------- Elemen ---------- */
+/* ---------- Elements ---------- */
 const $ = (sel) => document.querySelector(sel);
 const viewport = $('#viewport');
 const world = $('#world');
@@ -124,17 +125,17 @@ const state = {
 };
 
 const cam = {
-    x: 0, y: 0, z: 0.1,      // posisi kamera saat ini
-    tx: 0, ty: 0, tz: 0.1,   // target kamera
-    ox: 0, oy: 0,            // geseran layar (memberi ruang untuk panel)
-    focus: null,             // benda yang sedang diikuti
+    x: 0, y: 0, z: 0.1,      // current camera position
+    tx: 0, ty: 0, tz: 0.1,   // camera target
+    ox: 0, oy: 0,            // screen offset (makes room for the panel)
+    focus: null,             // body currently being followed
     follow: { t: 1, fx: 0, fy: 0 },
 };
 
 let fit = computeFit();
 let lastZ = -1;
 
-/* ---------- Bangun dunia ---------- */
+/* ---------- Build the world ---------- */
 function el(tag, className) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -142,9 +143,9 @@ function el(tag, className) {
 }
 
 function buildWorld() {
-    // Orbit dulu agar berada di bawah planet
+    // Orbits first so they sit below the planets
     BODIES.forEach((b) => {
-        b.period = EARTH_PERIOD * Math.sqrt(b.years); // dipadatkan supaya planet luar tetap bergerak
+        b.period = EARTH_PERIOD * Math.sqrt(b.years); // compressed so outer planets still visibly move
         b.phase = Math.random() * TAU;
         b.x = 0;
         b.y = 0;
@@ -168,7 +169,7 @@ function buildWorld() {
         const btn = el('button', `body ${b.id === 'sun' ? 'sun' : 'planet'}`);
         btn.style.setProperty('--size', `${b.size}px`);
         btn.style.setProperty('--c', b.color);
-        btn.setAttribute('aria-label', `${b.name} — lihat detail`);
+        btn.setAttribute('aria-label', `${b.name} — view details`);
         btn.innerHTML =
             (b.id === 'sun' ? '<span class="sun__glow"></span><span class="sun__corona"></span>' : '') +
             `<img src="${b.img}" alt="" draggable="false"><span class="label">${b.name}</span>`;
@@ -189,7 +190,7 @@ function buildWorld() {
 
 function createBelt() {
     const half = BELT.outer + 4;
-    const res = 2; // resolusi ekstra agar tetap tajam saat di-zoom
+    const res = 2; // extra resolution so it stays sharp when zoomed
     const canvas = el('canvas', 'belt');
     canvas.width = canvas.height = half * 2 * res;
     Object.assign(canvas.style, {
@@ -203,7 +204,7 @@ function createBelt() {
     ctx.translate(half, half);
     for (let i = 0; i < 900; i++) {
         const a = Math.random() * TAU;
-        // distribusi menumpuk di tengah sabuk
+        // distribution clusters toward the middle of the belt
         const t = (Math.random() + Math.random() + Math.random()) / 3;
         const r = BELT.inner + (BELT.outer - BELT.inner) * t;
         const s = Math.random() ** 2 * 1.3 + 0.3;
@@ -229,7 +230,7 @@ function buildRail() {
     });
 }
 
-/* ---------- Seleksi & panel ---------- */
+/* ---------- Selection & panel ---------- */
 function select(b) {
     if (state.selected) {
         state.selected.el.classList.remove('is-selected');
@@ -270,7 +271,7 @@ function renderPanel(b) {
     const prev = BODIES[(i - 1 + BODIES.length) % BODIES.length];
     const next = BODIES[(i + 1) % BODIES.length];
     const pct = Math.min(100, (b.earthRatio / COMPARE_MAX) * 100);
-    const ratio = b.earthRatio.toLocaleString('id-ID');
+    const ratio = b.earthRatio.toLocaleString(LOCALE);
 
     panel.style.setProperty('--c', b.color);
     panelContent.innerHTML = `
@@ -284,17 +285,17 @@ function renderPanel(b) {
             `).join('')}
         </div>
         <div class="compare">
-            <div class="compare__head"><span>Ukuran dibanding Bumi</span><strong>${ratio}×</strong></div>
+            <div class="compare__head"><span>Size compared to Earth</span><strong>${ratio}×</strong></div>
             <div class="compare__track">
                 <div class="compare__fill" style="--w:${pct}%"></div>
                 <div class="compare__earth" style="left:${(1 / COMPARE_MAX) * 100}%"></div>
             </div>
-            ${b.earthRatio > COMPARE_MAX ? '<div class="compare__scale">Melebihi skala — diameternya ±109× Bumi.</div>' : '<div class="compare__scale">&nbsp;</div>'}
+            ${b.earthRatio > COMPARE_MAX ? '<div class="compare__scale">Off the scale — its diameter is ~109× Earth’s.</div>' : '<div class="compare__scale">&nbsp;</div>'}
         </div>
         <div class="fact"><i class="ri-lightbulb-flash-line"></i><p>${b.fact}</p></div>
         <div class="panel__nav">
-            <button class="nav-btn" data-go="-1"><i class="ri-arrow-left-s-line"></i><span><small>Sebelumnya</small>${prev.name}</span></button>
-            <button class="nav-btn nav-btn--next" data-go="1"><span><small>Berikutnya</small>${next.name}</span><i class="ri-arrow-right-s-line"></i></button>
+            <button class="nav-btn" data-go="-1"><i class="ri-arrow-left-s-line"></i><span><small>Previous</small>${prev.name}</span></button>
+            <button class="nav-btn nav-btn--next" data-go="1"><span><small>Next</small>${next.name}</span><i class="ri-arrow-right-s-line"></i></button>
         </div>`;
     panel.scrollTop = 0;
 }
@@ -323,10 +324,10 @@ $('#panelClose').addEventListener('click', () => {
     resetView();
 });
 
-/* ---------- Kamera ---------- */
+/* ---------- Camera ---------- */
 function computeFit() {
     const narrow = window.innerWidth < 760;
-    // Di layar sempit cukup sampai Saturnus; sisanya bisa di-zoom out
+    // On narrow screens fit up to Saturn; the rest is reachable by zooming out
     const reach = narrow ? 370 : 500;
     const usableW = window.innerWidth - (narrow ? 16 : 180);
     const usableH = window.innerHeight - (narrow ? 230 : 170);
@@ -340,7 +341,7 @@ function clampZoom(z) {
 function zoomAt(sx, sy, factor) {
     const nz = clampZoom(cam.tz * factor);
     if (!cam.focus) {
-        // Pertahankan titik di bawah kursor
+        // Keep the point under the cursor fixed
         const cx = window.innerWidth / 2 + cam.ox;
         const cy = window.innerHeight / 2 + cam.oy;
         const wx = cam.tx + (sx - cx) / cam.tz;
@@ -376,7 +377,7 @@ function panelOffset() {
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
-/* ---------- Input: geser, cubit, scroll ---------- */
+/* ---------- Input: drag, pinch, scroll ---------- */
 const pointer = { map: new Map(), moved: false, pinch: 0 };
 
 viewport.addEventListener('pointerdown', (e) => {
@@ -425,7 +426,7 @@ function endPointer(e) {
     if (pointer.map.size < 2) pointer.pinch = 0;
     if (pointer.map.size === 0) {
         viewport.classList.remove('is-dragging');
-        // reset setelah event click (yang menyusul pointerup) selesai diproses
+        // reset after the click event (which follows pointerup) has been handled
         setTimeout(() => { pointer.moved = false; }, 0);
     }
 }
@@ -445,19 +446,19 @@ viewport.addEventListener('wheel', (e) => {
     dismissHint();
 }, { passive: false });
 
-/* ---------- Kontrol ---------- */
+/* ---------- Controls ---------- */
 function setPlaying(on) {
     state.playing = on;
     playBtn.innerHTML = `<i class="ri-${on ? 'pause' : 'play'}-fill"></i>`;
-    playBtn.setAttribute('aria-label', on ? 'Jeda' : 'Lanjutkan');
-    playBtn.dataset.tip = on ? 'Jeda (Spasi)' : 'Lanjutkan (Spasi)';
+    playBtn.setAttribute('aria-label', on ? 'Pause' : 'Resume');
+    playBtn.dataset.tip = on ? 'Pause (Space)' : 'Resume (Space)';
 }
 
 function updateSpeed() {
     const v = Number(speedInput.value);
-    state.speed = 10 ** ((v - 50) / 50); // 0,1× … 10× (logaritmik)
+    state.speed = 10 ** ((v - 50) / 50); // 0.1× … 10× (logarithmic)
     speedInput.style.setProperty('--p', `${v}%`);
-    speedOut.textContent = `${state.speed.toLocaleString('id-ID', {
+    speedOut.textContent = `${state.speed.toLocaleString(LOCALE, {
         minimumFractionDigits: state.speed < 1 ? 2 : 1,
         maximumFractionDigits: state.speed < 1 ? 2 : 1,
     })}×`;
@@ -519,7 +520,7 @@ function dismissHint() {
     hint.classList.add('is-hidden');
 }
 
-/* ---------- Langit berbintang ---------- */
+/* ---------- Starry sky ---------- */
 const sky = { canvas: $('#sky'), stars: [], shooting: [], nextShoot: 3, w: 0, h: 0 };
 sky.ctx = sky.canvas.getContext('2d');
 const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -577,7 +578,7 @@ function drawSky(t, dt) {
 
     if (reduceMotion) return;
 
-    // Bintang jatuh sesekali
+    // Occasional shooting stars
     sky.nextShoot -= dt;
     if (sky.nextShoot <= 0) {
         const angle = Math.PI * (0.15 + Math.random() * 0.2);
@@ -611,7 +612,7 @@ function drawSky(t, dt) {
     }
 }
 
-/* ---------- Loop utama ---------- */
+/* ---------- Main loop ---------- */
 let last = performance.now();
 
 function frame(now) {
@@ -620,7 +621,7 @@ function frame(now) {
     if (state.playing) state.simTime += dt * state.speed;
     const T = state.simTime;
 
-    // Posisi planet (berlawanan arah jarum jam, seperti dilihat dari utara)
+    // Planet positions (counterclockwise, as seen from above the north pole)
     for (const b of BODIES) {
         if (!b.radius) continue;
         const a = b.phase + (T / b.period) * TAU;
@@ -639,7 +640,7 @@ function frame(now) {
     MOON.el.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
     BELT.el.style.transform = `rotate(${(-T / (EARTH_PERIOD * Math.sqrt(BELT.years))) * 360}deg)`;
 
-    // Kamera
+    // Camera
     const k = 1 - Math.exp(-dt * 5);
     if (cam.focus) {
         cam.follow.t = Math.min(1, cam.follow.t + dt / 1.2);
@@ -663,7 +664,7 @@ function frame(now) {
         lastZ = cam.z;
     }
 
-    simYearsEl.textContent = (T / EARTH_PERIOD).toLocaleString('id-ID', {
+    simYearsEl.textContent = (T / EARTH_PERIOD).toLocaleString(LOCALE, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
@@ -672,7 +673,7 @@ function frame(now) {
     requestAnimationFrame(frame);
 }
 
-/* ---------- Mulai ---------- */
+/* ---------- Start ---------- */
 window.addEventListener('resize', () => {
     const oldFit = fit;
     fit = computeFit();
@@ -691,7 +692,7 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         $('#loader').classList.add('is-hidden');
         document.body.classList.add('is-ready');
-        cam.tz = fit; // animasi zoom masuk
+        cam.tz = fit; // zoom-in intro animation
         hintTimer = setTimeout(dismissHint, 8000);
     }, 500);
 });

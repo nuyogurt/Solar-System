@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Simulasi tata surya interaktif: jelajahi Matahari dan 8 planet, atur kecepatan, zoom, dan pelajari fakta tiap planet.">
+    <meta name="description" content="Interactive solar system simulation: explore the Sun and 8 planets, control the speed, zoom in, and learn facts about each planet.">
     <meta name="theme-color" content="#03040b">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,90 +11,90 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="sun.png">
-    <title>Tata Surya Interaktif</title>
+    <title>Interactive Solar System</title>
 </head>
 
 <body>
-    <!-- Layar pembuka -->
+    <!-- Loading screen -->
     <div class="loader" id="loader" aria-hidden="true">
         <div class="loader__orbit"><span></span></div>
-        <p>Menyiapkan tata surya…</p>
+        <p>Preparing the solar system…</p>
     </div>
 
-    <!-- Latar belakang -->
+    <!-- Background -->
     <div class="nebula" aria-hidden="true"></div>
     <canvas class="sky" id="sky" aria-hidden="true"></canvas>
 
-    <!-- Peta tata surya (diisi oleh script.js) -->
-    <main class="viewport" id="viewport" aria-label="Peta tata surya">
+    <!-- Solar system map (filled by script.js) -->
+    <main class="viewport" id="viewport" aria-label="Solar system map">
         <div class="world" id="world"></div>
     </main>
 
-    <!-- HUD atas -->
+    <!-- Top HUD -->
     <header class="hud">
         <div class="brand">
             <div class="brand__logo"><i class="ri-sun-fill"></i></div>
             <div>
-                <h1>Tata Surya</h1>
-                <p>Simulasi interaktif · 8 planet</p>
+                <h1>Solar System</h1>
+                <p>Interactive simulation · 8 planets</p>
             </div>
         </div>
         <div class="clock glass" aria-live="off">
-            <span class="clock__label">Waktu simulasi</span>
-            <span class="clock__value"><span id="simYears">0,00</span> tahun Bumi</span>
+            <span class="clock__label">Simulation time</span>
+            <span class="clock__value"><span id="simYears">0.00</span> Earth years</span>
         </div>
     </header>
 
     <div class="hint glass" id="hint">
-        <span class="hint--mouse"><i class="ri-drag-move-2-line"></i> Seret untuk geser · <i class="ri-mouse-line"></i> Scroll untuk zoom · Klik planet untuk detail</span>
-        <span class="hint--touch"><i class="ri-drag-move-2-line"></i> Geser · cubit untuk zoom · ketuk planet</span>
+        <span class="hint--mouse"><i class="ri-drag-move-2-line"></i> Drag to pan · <i class="ri-mouse-line"></i> Scroll to zoom · Click a planet for details</span>
+        <span class="hint--touch"><i class="ri-drag-move-2-line"></i> Drag · pinch to zoom · tap a planet</span>
     </div>
 
-    <!-- Daftar planet -->
-    <nav class="rail glass" id="rail" aria-label="Pilih benda langit"></nav>
+    <!-- Planet list -->
+    <nav class="rail glass" id="rail" aria-label="Choose a celestial body"></nav>
 
-    <!-- Panel detail -->
+    <!-- Detail panel -->
     <aside class="panel glass" id="panel" aria-labelledby="panelTitle" aria-hidden="true">
-        <button class="panel__close" id="panelClose" aria-label="Tutup detail"><i class="ri-close-line"></i></button>
+        <button class="panel__close" id="panelClose" aria-label="Close details"><i class="ri-close-line"></i></button>
         <div class="panel__content" id="panelContent"></div>
     </aside>
 
-    <!-- Kontrol simulasi -->
-    <div class="controls glass" role="toolbar" aria-label="Kontrol simulasi">
-        <button class="btn btn--primary" id="playBtn" data-tip="Jeda (Spasi)" aria-label="Jeda"><i class="ri-pause-fill"></i></button>
-        <label class="speed" data-tip="Kecepatan">
+    <!-- Simulation controls -->
+    <div class="controls glass" role="toolbar" aria-label="Simulation controls">
+        <button class="btn btn--primary" id="playBtn" data-tip="Pause (Space)" aria-label="Pause"><i class="ri-pause-fill"></i></button>
+        <label class="speed" data-tip="Speed">
             <i class="ri-dashboard-3-line"></i>
-            <input type="range" id="speed" min="0" max="100" value="50" aria-label="Kecepatan simulasi">
-            <output id="speedOut" for="speed">1,0×</output>
+            <input type="range" id="speed" min="0" max="100" value="50" aria-label="Simulation speed">
+            <output id="speedOut" for="speed">1.0×</output>
         </label>
         <span class="divider"></span>
-        <button class="btn is-active" id="orbitBtn" data-tip="Orbit (O)" aria-label="Tampilkan orbit" aria-pressed="true"><i class="ri-donut-chart-line"></i></button>
-        <button class="btn is-active" id="labelBtn" data-tip="Label (L)" aria-label="Tampilkan label" aria-pressed="true"><i class="ri-price-tag-3-line"></i></button>
+        <button class="btn is-active" id="orbitBtn" data-tip="Orbits (O)" aria-label="Show orbits" aria-pressed="true"><i class="ri-donut-chart-line"></i></button>
+        <button class="btn is-active" id="labelBtn" data-tip="Labels (L)" aria-label="Show labels" aria-pressed="true"><i class="ri-price-tag-3-line"></i></button>
         <span class="divider"></span>
-        <button class="btn" id="zoomOutBtn" data-tip="Perkecil (−)" aria-label="Perkecil"><i class="ri-zoom-out-line"></i></button>
-        <button class="btn" id="resetBtn" data-tip="Reset tampilan (R)" aria-label="Reset tampilan"><i class="ri-focus-3-line"></i></button>
-        <button class="btn" id="zoomInBtn" data-tip="Perbesar (+)" aria-label="Perbesar"><i class="ri-zoom-in-line"></i></button>
+        <button class="btn" id="zoomOutBtn" data-tip="Zoom out (−)" aria-label="Zoom out"><i class="ri-zoom-out-line"></i></button>
+        <button class="btn" id="resetBtn" data-tip="Reset view (R)" aria-label="Reset view"><i class="ri-focus-3-line"></i></button>
+        <button class="btn" id="zoomInBtn" data-tip="Zoom in (+)" aria-label="Zoom in"><i class="ri-zoom-in-line"></i></button>
         <span class="divider hide-sm"></span>
-        <button class="btn hide-sm" id="fullBtn" data-tip="Layar penuh (F)" aria-label="Layar penuh"><i class="ri-fullscreen-line"></i></button>
-        <button class="btn hide-sm" id="helpBtn" data-tip="Pintasan (?)" aria-label="Pintasan keyboard"><i class="ri-keyboard-line"></i></button>
+        <button class="btn hide-sm" id="fullBtn" data-tip="Fullscreen (F)" aria-label="Fullscreen"><i class="ri-fullscreen-line"></i></button>
+        <button class="btn hide-sm" id="helpBtn" data-tip="Shortcuts (?)" aria-label="Keyboard shortcuts"><i class="ri-keyboard-line"></i></button>
     </div>
 
-    <!-- Bantuan pintasan keyboard -->
+    <!-- Keyboard shortcuts help -->
     <dialog class="help glass" id="help" aria-labelledby="helpTitle">
         <div class="help__head">
-            <h2 id="helpTitle">Pintasan keyboard</h2>
-            <button class="btn" id="helpClose" aria-label="Tutup"><i class="ri-close-line"></i></button>
+            <h2 id="helpTitle">Keyboard shortcuts</h2>
+            <button class="btn" id="helpClose" aria-label="Close"><i class="ri-close-line"></i></button>
         </div>
         <ul class="help__list">
-            <li><span><kbd>Spasi</kbd></span> Jeda / lanjutkan</li>
-            <li><span><kbd>←</kbd><kbd>→</kbd></span> Planet sebelumnya / berikutnya</li>
-            <li><span><kbd>0</kbd>–<kbd>8</kbd></span> Lompat ke Matahari … Neptunus</li>
-            <li><span><kbd>+</kbd><kbd>−</kbd></span> Perbesar / perkecil</li>
-            <li><span><kbd>R</kbd></span> Reset tampilan</li>
-            <li><span><kbd>O</kbd></span> Tampilkan / sembunyikan orbit</li>
-            <li><span><kbd>L</kbd></span> Tampilkan / sembunyikan label</li>
-            <li><span><kbd>F</kbd></span> Layar penuh</li>
-            <li><span><kbd>Esc</kbd></span> Tutup panel</li>
+            <li><span><kbd>Space</kbd></span> Pause / resume</li>
+            <li><span><kbd>←</kbd><kbd>→</kbd></span> Previous / next planet</li>
+            <li><span><kbd>0</kbd>–<kbd>8</kbd></span> Jump to the Sun … Neptune</li>
+            <li><span><kbd>+</kbd><kbd>−</kbd></span> Zoom in / out</li>
+            <li><span><kbd>R</kbd></span> Reset view</li>
+            <li><span><kbd>O</kbd></span> Show / hide orbits</li>
+            <li><span><kbd>L</kbd></span> Show / hide labels</li>
+            <li><span><kbd>F</kbd></span> Fullscreen</li>
+            <li><span><kbd>Esc</kbd></span> Close panel</li>
         </ul>
     </dialog>
 

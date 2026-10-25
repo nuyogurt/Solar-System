@@ -1,5 +1,5 @@
 /* ==========================================================
-   Tata Surya Interaktif — style.css
+   Interactive Solar System — style.css
    ========================================================== */
 
 :root {
@@ -50,7 +50,7 @@ img {
     display: block;
 }
 
-/* ---------- Komponen kaca ---------- */
+/* ---------- Glass component ---------- */
 .glass {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -59,7 +59,7 @@ img {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* ---------- Latar ---------- */
+/* ---------- Background ---------- */
 .nebula,
 .sky {
     position: fixed;
@@ -79,7 +79,7 @@ img {
     height: 100%;
 }
 
-/* ---------- Area simulasi ---------- */
+/* ---------- Simulation area ---------- */
 .viewport {
     position: fixed;
     inset: 0;
@@ -147,7 +147,7 @@ img {
     opacity: 0.85;
 }
 
-/* Benda langit */
+/* Celestial bodies */
 .body {
     position: absolute;
     left: 0;
@@ -170,7 +170,7 @@ img {
     transition: transform 0.35s var(--ease);
 }
 
-/* Area klik minimal ±32px di layar, berapa pun zoom-nya */
+/* Click area of at least ~32px on screen, at any zoom level */
 .body::after {
     content: '';
     position: absolute;
@@ -223,7 +223,7 @@ img {
     pointer-events: none;
 }
 
-/* Matahari */
+/* Sun */
 .sun img {
     position: relative;
     z-index: 2;
@@ -368,7 +368,7 @@ img {
     display: none;
 }
 
-/* ---------- Rail planet ---------- */
+/* ---------- Planet rail ---------- */
 .rail {
     position: fixed;
     left: var(--gap);
@@ -421,7 +421,7 @@ img {
     outline-offset: 2px;
 }
 
-/* ---------- Kontrol ---------- */
+/* ---------- Controls ---------- */
 .controls {
     position: fixed;
     bottom: var(--gap);
@@ -436,7 +436,7 @@ img {
     transition: left 0.6s var(--ease);
 }
 
-/* Saat panel terbuka, geser kontrol ke ruang yang tersisa */
+/* When the panel is open, shift the controls into the remaining space */
 @media (min-width: 761px) {
     .panel-open .controls {
         left: calc(50% - 200px);
@@ -591,7 +591,7 @@ img {
     }
 }
 
-/* ---------- Panel detail ---------- */
+/* ---------- Detail panel ---------- */
 .panel {
     --c: var(--accent);
     position: fixed;
@@ -782,7 +782,7 @@ img {
 }
 
 .compare__earth::after {
-    content: 'Bumi';
+    content: 'Earth';
     position: absolute;
     top: 18px;
     left: 50%;
@@ -865,7 +865,7 @@ img {
     text-align: right;
 }
 
-/* ---------- Dialog bantuan ---------- */
+/* ---------- Help dialog ---------- */
 .help {
     width: min(420px, calc(100% - 32px));
     padding: 22px;
@@ -935,7 +935,7 @@ kbd {
     font-size: 12px;
 }
 
-/* ---------- Loader & animasi masuk ---------- */
+/* ---------- Loader & entrance animations ---------- */
 .loader {
     position: fixed;
     inset: 0;
@@ -1052,7 +1052,7 @@ kbd {
     to { opacity: 1; transform: translate(0, -50%); }
 }
 
-/* Hint memakai translateX(-50%), jadi animasinya perlu versi sendiri */
+/* The hint uses translateX(-50%), so it needs its own animation */
 .is-ready .hint {
     animation-name: hintIn;
 }
@@ -1067,7 +1067,7 @@ kbd {
     opacity: 0;
 }
 
-/* ---------- Responsif ---------- */
+/* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
     .hint {
         top: calc(var(--gap) + 62px);
